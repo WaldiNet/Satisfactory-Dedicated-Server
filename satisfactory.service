@@ -1,0 +1,17 @@
+[Unit]
+Description=Satisfactory dedicated server
+Wants=network-online.target
+After=syslog.target network.target nss-lookup.target network-online.target
+
+[Service]
+Environment="LD_LIBRARY_PATH=./linux64"
+ExecStartPre=/usr/games/steamcmd +force_install_dir {GAME_SERVER_DIR}/{SATISFACTORY_SERVER_DIR_NAME} +login anonymous +app_update 1690800 validate +quit
+ExecStart={GAME_SERVER_DIR}/{SATISFACTORY_SERVER_DIR_NAME}/FactoryServer.sh -ServerQueryPort={QUERY_PORT} -BeaconPort={BEACON_PORT} -Port={SERVER_PORT} -log -unattended -multihome={SERVER_IP}
+User={USER}
+Group={GROUP}
+StandardOutput=journal
+Restart=on-failure
+WorkingDirectory={GAME_SERVER_DIR}
+
+[Install]
+WantedBy=multi-user.target
