@@ -159,7 +159,7 @@ sed -i -e "s/{SERVER_IP}/${serverIP}/g" ./$tmpServiceName
 sed -i -e "s/{USER}/${serviceUser}/g" ./$tmpServiceName
 sed -i -e "s/{GROUP}/${serviceGroup}/g" ./$tmpServiceName
 
-mv ./$tmpServiceName $serviceDir/$serviceName 
+sudo mv ./$tmpServiceName $serviceDir/$serviceName 
 
 sudo systemctl daemon-reload
 sudo systemctl enable satisfactory
