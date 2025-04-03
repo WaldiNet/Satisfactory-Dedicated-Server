@@ -75,10 +75,10 @@ sudo ufw allow $serverBeaconPort/udp comment "Satisfactory Beacon"
 sudo ufw allow $serverPort/tcp comment "Satisfactory Server"
 sudo ufw allow $serverPort/udp comment "Satisfactory Server"
 
-sudo ufw enable
+#sudo ufw enable
 
 echo ""
-echo "${green}Firewall configured!${reset}"
+echo "${green}Firewall configured! Enable at your own risk after the server setup${reset}"
 echo""
 
 # Configure fail2ban
