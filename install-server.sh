@@ -48,11 +48,6 @@ read -p "Servce owner group [${green}$USER${reset}]: " input
 serviceGroup="${input:-$USER}"
 echo ""
 
-# Ask for sudo
-##################################
-[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
-##################################
-
 sudo apt update -y
 sudo apt upgrade -y
 
@@ -86,11 +81,11 @@ echo""
 echo ""
 echo "${green}Configuring fail2ban...${reset}"
 echo""
-sudo apt install fail2ban
+sudo apt install fail2ban -y
 
 sudo systemctl restart fail2ban
 sudo systemctl enable fail2ban
-sudo systemctl status fail2ban
+#sudo systemctl status fail2ban
 
 echo ""
 echo "${green}fail2ban configured!${reset}"
@@ -103,9 +98,9 @@ echo "${green}Preparing SteamCMD...${reset}"
 echo""
 sudo add-apt-repository multiverse
 sudo dpkg --add-architecture i386
-sudo apt update
+sudo apt update -y
 
-sudo apt install steamcmd
+sudo apt install steamcmd -y
 
 sudo mkdir $gameServerDir
 sudo chown -R "${serviceUser}:${serviceGroup}" $gameServerDir
@@ -129,9 +124,17 @@ echo""
 echo ""
 echo "${green}Prepare server update script...${reset}"
 echo""
-wget https://raw.githubusercontent.com/WaldiNet/Satisfactory-Dedicated-Server/refs/heads/master/update-satisfactory.sh -P ~/
-sed -i -e "s/{GAME_SERVER_DIR}/${gameServerDir}/g" ~/update-satisfactory.sh
-sed -i -e "s/{SATISFACTORY_SERVER_DIR_NAME}/${satisfactoryServerDirName}/g" ~/update-satisfactory.sh
+
+updateScriptName=update-satisfactory.sh
+tmpUpdateScriptName=update-satisfactory.sh.tmp
+
+cp ./$updateScriptName ./$tmpUpdateScriptName
+
+sed -i -e "s/{GAME_SERVER_DIR}/${gameServerDir}/g" ./$tmpUpdateScriptName
+sed -i -e "s/{SATISFACTORY_SERVER_DIR_NAME}/${satisfactoryServerDirName}/g" ./$tmpUpdateScriptName
+
+mv ./$tmpUpdateScriptName ~/$updateScriptName
+
 echo ""
 echo "${green}Server update script ready!${reset}"
 echo""
@@ -141,16 +144,23 @@ echo""
 echo ""
 echo "${green}Prepare server service...${reset}"
 echo""
-wget https://raw.githubusercontent.com/WaldiNet/Satisfactory-Dedicated-Server/refs/heads/master/satisfactory.service -P $serviceDir
 
-sed -i -e "s/{GAME_SERVER_DIR}/${gameServerDir}/g" $serviceDir/satisfactory.service
-sed -i -e "s/{SATISFACTORY_SERVER_DIR_NAME}/${satisfactoryServerDirName}/g" $serviceDir/satisfactory.service
-sed -i -e "s/{QUERY_PORT}/${serverQueryPort}/g" $serviceDir/satisfactory.service
-sed -i -e "s/{BEACON_PORT}/${serverBeaconPort}/g" $serviceDir/satisfactory.service
-sed -i -e "s/{SERVER_PORT}/${serverPort}/g" $serviceDir/satisfactory.service
-sed -i -e "s/{SERVER_IP}/${serverIP}/g" $serviceDir/satisfactory.service
-sed -i -e "s/{USER}/${serviceUser}/g" $serviceDir/satisfactory.service
-sed -i -e "s/{GROUP}/${serviceGroup}/g" $serviceDir/satisfactory.service
+serviceName=satisfactory.service
+tmpServiceName=satisfactory.service.tmp
+
+cp ./$serviceName ./$tmpServiceName
+
+sed -i -e "s/{GAME_SERVER_DIR}/${gameServerDir}/g" ./$tmpServiceName
+sed -i -e "s/{SATISFACTORY_SERVER_DIR_NAME}/${satisfactoryServerDirName}/g" ./$tmpServiceName
+sed -i -e "s/{QUERY_PORT}/${serverQueryPort}/g" ./$tmpServiceName
+sed -i -e "s/{BEACON_PORT}/${serverBeaconPort}/g" ./$tmpServiceName
+sed -i -e "s/{SERVER_PORT}/${serverPort}/g" ./$tmpServiceName
+sed -i -e "s/{SERVER_IP}/${serverIP}/g" ./$tmpServiceName
+sed -i -e "s/{USER}/${serviceUser}/g" ./$tmpServiceName
+sed -i -e "s/{GROUP}/${serviceGroup}/g" ./$tmpServiceName
+
+mv ./$tmpServiceName $serviceDir/$serviceName 
+
 sudo systemctl daemon-reload
 sudo systemctl enable satisfactory
 
